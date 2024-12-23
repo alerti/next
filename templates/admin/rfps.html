@@ -1,0 +1,147 @@
+{% extends 'admin/master.html' %}
+{% block title %}RFPs - Nexus RFP Platform{% endblock title %}
+
+{% block body %}
+<section class="content-header mb-3">
+  <h1 class="h4 fw-bold">
+    RFP Management
+    <small class="text-muted ms-2">Manage &amp; View RFPs</small>
+  </h1>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{{ url_for('index') }}">
+        <i class="fa fa-dashboard"></i> Home
+      </a>
+    </li>
+    <li class="breadcrumb-item active">RFPs</li>
+  </ol>
+</section>
+
+<section class="content">
+  <div class="container-fluid">
+
+    <!-- Filter/Search Box -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0"><i class="fa fa-filter me-2"></i>Filter RFPs</h5>
+      </div>
+      <div class="card-body">
+        <form method="GET" action="">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="keyword" class="form-label">Keyword</label>
+              <input
+                type="text"
+                name="keyword"
+                class="form-control"
+                placeholder="e.g. education"
+                value="{{ request.args.get('keyword', '') }}"
+              >
+            </div>
+            <div class="col-md-4">
+              <label for="location" class="form-label">Location</label>
+              <input
+                type="text"
+                name="location"
+                class="form-control"
+                placeholder="e.g. New York"
+                value="{{ request.args.get('location', '') }}"
+              >
+            </div>
+            <div class="col-md-4">
+              <label for="agency" class="form-label">Agency</label>
+              <input
+                type="text"
+                name="agency"
+                class="form-control"
+                placeholder="e.g. DOE"
+                value="{{ request.args.get('agency', '') }}"
+              >
+            </div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-md-4">
+              <label for="start_date" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="start_date"
+                class="form-control"
+                value="{{ request.args.get('start_date', '') }}"
+              >
+            </div>
+            <div class="col-md-4">
+              <label for="end_date" class="form-label">End Date</label>
+              <input
+                type="date"
+                name="end_date"
+                class="form-control"
+                value="{{ request.args.get('end_date', '') }}"
+              >
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary w-100">
+                <i class="fa fa-search"></i> Search
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- RFP Listings -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-info text-white">
+        <h5 class="card-title mb-0"><i class="fa fa-list me-2"></i>RFP Listings</h5>
+      </div>
+      <div class="card-body p-0 table-responsive">
+        <table class="table table-hover table-striped mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" style="width: 5%;">#</th>
+              <th scope="col" style="width: 25%;">Title</th>
+              <th scope="col" style="width: 15%;">Agency</th>
+              <th scope="col" style="width: 15%;">Location</th>
+              <th scope="col" style="width: 15%;">Issue Date</th>
+              <th scope="col" style="width: 15%;">Due Date</th>
+              <th scope="col" style="width: 10%;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for rfp in rfps %}
+            <tr>
+              <td>{{ rfp.id }}</td>
+              <td>{{ rfp.title }}</td>
+              <td>{{ rfp.agency }}</td>
+              <td>{{ rfp.location }}</td>
+              <td>{{ rfp.issue_date.strftime('%Y-%m-%d') if rfp.issue_date else 'N/A' }}</td>
+              <td>{{ rfp.due_date.strftime('%Y-%m-%d') if rfp.due_date else 'N/A' }}</td>
+              <td>
+                <a href="{{ url_for('rfps.details', id=rfp.id) }}" class="btn btn-info btn-sm mb-1">
+                  <i class="fa fa-eye"></i> View
+                </a>
+                <a href="{{ url_for('rfps.edit', id=rfp.id) }}" class="btn btn-warning btn-sm mb-1">
+                  <i class="fa fa-pencil"></i> Edit
+                </a>
+                <a href="{{ url_for('rfps.delete', id=rfp.id) }}" class="btn btn-danger btn-sm">
+                  <i class="fa fa-trash"></i> Delete
+                </a>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="7" class="text-center text-muted py-3">
+                No RFPs found.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer text-muted">
+        Showing <strong>{{ rfps|length }}</strong> RFP(s).
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock body %}

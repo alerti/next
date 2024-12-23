@@ -1,0 +1,226 @@
+{% import 'admin/layout.html' as layout with context %}
+{% import 'admin/static.html' as admin_static with context %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>
+        {% block title %}
+        {% if admin_view.category %}{{ admin_view.category }} - {% endif %}{{ admin_view.name }} - {{ admin_view.admin.name }}
+        {% endblock title %}
+    </title>
+
+    {% block head_meta %}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RFP Management System">
+    <meta name="author" content="">
+    {% endblock head_meta %}
+
+    {% block head_css %}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/rfps.min.css') }}">
+
+    {% if admin_view.extra_css %}
+        {% for css_url in admin_view.extra_css %}
+            <link href="{{ css_url }}" rel="stylesheet">
+        {% endfor %}
+    {% endif %}
+
+    <style>
+        body {
+            background-color: #f5f5f5; /* Light background color for the body */
+        }
+
+        .navbar,.main-header, .main-sidebar, .content-wrapper, body {
+            background-color: #eaecef; /* Navbar background color */
+            color: rgb(21, 20, 20); /* Navbar text color */
+        }
+
+        .navbar a {
+            color: rgb(24, 0, 74); /* Navbar link color */
+        }
+
+        .navbar a:hover {
+            color: #003264; /* Lighter color on hover */
+        }
+
+        .sidebar {
+            height: 100vh; /* Full height */
+            position: fixed; /* Fixed position */
+            width: 250px; /* Fixed width */
+            z-index: 1000; /* Ensure sidebar is above other elements */
+        }
+
+        .sidebar-menu a {
+            padding: 15px 20px; /* Padding for links */
+            color: #383535; /* White text color */
+            text-decoration: none; /* Remove underline */
+            display: block; /* Block display */
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-menu a:hover {
+            background-color: #495057; /* Darker hover effect */
+        }
+
+        .sidebar-menu .active {
+            background-color: #007bff; /* Active link background */
+            color: white; /* Active link text color */
+        }
+
+        .modal-header {
+            background-color: #eaecef;
+            color: white;
+        }
+
+        .modal-footer button {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .content-wrapper {
+            margin-left: 250px; /* Adjust margin for sidebar */
+            padding: 20px; /* Add padding to content area */
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative;
+                height: auto; /* Allow sidebar to expand on smaller screens */
+                width: 100%; /* Full width on small screens */
+                box-shadow: none;
+                z-index: auto;
+            }
+
+            .content-wrapper {
+                margin-left: 0; /* No margin on mobile devices */
+                padding-top: 20px;
+            }
+        }
+    </style>
+
+    {% endblock head_css %}
+
+    {% block head %}{% endblock head %}
+    {% block head_tail %}{% endblock head_tail %}
+</head>
+
+<body class="hold-transition sidebar-mini">
+    <div class="wrapper">
+        {% if current_user.is_authenticated %}
+
+        <!-- Header -->
+        <header class="main-header">
+            {% block brand %}
+            <a href="{{ admin_view.admin.url }}" class="logo">
+                <span class="logo-mini"><b>MD</b></span>
+                <span class="logo-lg"><b>{{ admin_view.admin.name }}</b></span>
+            </a>
+            {% endblock brand %}
+
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <i class="fa fa-eercast text-success" aria-hidden="true"></i>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-user-circle me-2"></i>
+                                {% if current_user.first_name %}
+                                {{ current_user.first_name }}
+                                {% else %}
+                                {{ current_user.email }}
+                                {% endif %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#userDetailsModal">User Details</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="main-sidebar pt-5 mt-5">
+            <section class="sidebar">
+                <ul class="sidebar-menu list-unstyled">
+                    <li class="text-center mb-4"><h4>Admin Panel</h4></li>
+                    {% block main_menu %}
+                    {{ layout.menu() }}
+                    {% endblock %}
+                </ul>
+            </section>
+        </aside>
+
+        <!-- Content Wrapper -->
+        <div class="content-wrapper">
+            {% set render_ctx = h.resolve_ctx() %}
+            {% block body %}{% endblock body %}
+
+          <!-- User Details Modal -->
+          <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="userDetailsModalLabel">User Details</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                          </button>
+                      </div>
+                      <div class="modal-body">
+                          <ul class="list-group">
+                              <li class="list-group-item"><strong>Name:</strong> {{ current_user.first_name }} {{ current_user.last_name or 'Not Provided' }}</li>
+                              <li class="list-group-item"><strong>Email:</strong> {{ current_user.email }}</li>
+                              <li class="list-group-item"><strong>Roles:</strong>
+                                  {% for role in current_user.roles %}
+                                      {{ role.name }}{% if not loop.last %}, {% endif %}
+                                  {% else %} None Assigned
+                                  {% endfor %}
+                              </li>
+                              <li class="list-group-item"><strong>Last Login:</strong> {{ current_user.last_login_at or 'Never' }}</li>
+                          </ul>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- Control Sidebar Background -->
+          <div class="control-sidebar-bg"></div>
+
+          <!-- Footer Scripts -->
+          {% block tail_js %}
+          <script src="//code.jquery.com/jquery-3.6.0.min.js"></script>
+          <script src="//code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+          <script src="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+
+          <!-- Additional JS -->
+          {% if admin_view.extra_js %}
+              {% for js_url in admin_view.extra_js %}
+                  <script src="{{ js_url }}" type='text/javascript'></script>
+              {% endfor %}
+          {% endif %}
+
+          <!-- Chart.js -->
+          <script src="//cdn.jsdelivr.net/npm/chart.js"></script>
+
+          <!-- Dashboard specific JS -->
+          {% if admin_view.name == "Home" %}
+              <script src="{{ url_for('static', filename='js/pages/dashboard.js') }}"></script>
+          {% endif %}
+          {% endblock tail_js %}
+
+          {% block tail %}{% endblock tail %}
+
+      </div> <!-- End of wrapper -->
+      {% endif %}
+</body>
+
+</html>

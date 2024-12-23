@@ -1,0 +1,17 @@
+{% extends 'admin/master.html' %}
+{% block body %}
+{{ super() }}
+
+{% if current_user.is_authenticated %}
+
+<section class="content">
+  <div class="row">
+    <div> Coming soon </div>
+  </div>
+
+</section>
+{% else %}
+  <br><br><br><br><br><br><br><br><br>
+  <br><br><br><br><br><br><br><br><br><br>
+  {% endif %}
+  {% endblock body %}
